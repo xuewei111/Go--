@@ -30,6 +30,7 @@ func GetHtml(url string) string {
 	resp, err := http.Get(url)
 
 	HandleErr(err, `http.Get`)
+	defer resp.Body.Close()
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
 	html := string(bytes)
