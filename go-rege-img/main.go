@@ -6,7 +6,13 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
+)
+
+var (
+	chSem      = make(chan int, 5)
+	downLoadWG sync.WaitGroup
 )
 
 func GetPageImgUrls(url string) []string {
@@ -41,7 +47,14 @@ func DownLoadImg(url string) {
 }
 
 func DownLoadImgAsync(url string) {
-
+	downLoadWG.Add(1)
+	go func() {
+		chSem <- 123
+		DownLoadImg(url)
+		<-chSem
+		downLoadWG.Done()
+	}()
+	downLoadWG.Wait()
 }
 
 func main() {
